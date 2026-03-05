@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithme de Lancement — Guide GitHub Club IT</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Source+Code+Pro:wght@400;600&family=Open+Sans:wght@400;600;700&display=swap');
+
+  :root {
+    --manning-red: #c0392b;
+    --manning-dark: #1a1a1a;
+    --manning-gray: #555;
+    --manning-light-gray: #f4f4f0;
+    --manning-border: #d0cfc8;
+    --font-body: 'Merriweather', Georgia, serif;
+    --font-ui: 'Open Sans', sans-serif;
+    --font-mono: 'Source Code Pro', 'Courier New', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); font-size: 15px; line-height: 1.85; color: var(--manning-dark); background: #fff; }
+
+  /* ── COVER ── */
+  .cover { background: var(--manning-dark); color: #fff; min-height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .cover-stripe { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--manning-red); }
+  .cover-animal-box { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 80px 20px; }
+  .cover-animal-inner { border: 2px solid rgba(255,255,255,0.15); border-radius: 4px; padding: 40px; text-align: center; width: 100%; max-width: 500px; }
+  .cover-animal-label { font-family: var(--font-ui); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 24px; }
+  .cover-animal-svg { font-size: 120px; line-height: 1; }
+  .cover-edition { font-family: var(--font-ui); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-top: 20px; }
+  .cover-bottom { padding: 0 80px 60px; }
+  .cover-separator { height: 1px; background: var(--manning-red); margin-bottom: 32px; }
+  .cover-title { font-family: var(--font-body); font-size: 36px; font-weight: 700; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 14px; }
+  .cover-subtitle { font-family: var(--font-ui); font-size: 16px; color: rgba(255,255,255,0.65); margin-bottom: 40px; line-height: 1.5; }
+  .cover-meta { display: flex; align-items: center; justify-content: space-between; }
+  .cover-authors { font-family: var(--font-ui); font-size: 13px; color: rgba(255,255,255,0.55); }
+  .cover-authors strong { display: block; font-size: 15px; color: rgba(255,255,255,0.85); margin-bottom: 2px; }
+  .cover-publisher { font-family: var(--font-ui); font-size: 22px; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,0.9); text-transform: uppercase; }
+  .cover-publisher span { display: block; font-size: 9px; letter-spacing: 1px; font-weight: 400; color: rgba(255,255,255,0.4); margin-top: 2px; text-align: right; }
+
+  /* ── FRONT MATTER ── */
+  .front-matter { max-width: 720px; margin: 0 auto; padding: 80px 60px; border-bottom: 2px solid var(--manning-border); }
+  .front-matter h2 { font-family: var(--font-ui); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--manning-red); margin-bottom: 32px; }
+  .brief-toc { list-style: none; counter-reset: toc-phase; }
+  .brief-toc li { counter-increment: toc-phase; display: flex; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px dotted var(--manning-border); font-family: var(--font-ui); font-size: 13px; color: var(--manning-gray); }
+  .brief-toc li::before { content: "Phase " counter(toc-phase); font-weight: 700; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--manning-red); min-width: 70px; }
+  .brief-toc .toc-dots { flex: 1; border-bottom: 1px dotted var(--manning-border); margin-bottom: 3px; }
+  .toc-page { font-weight: 600; color: var(--manning-dark); }
+  .preface-text { font-size: 14px; color: var(--manning-gray); line-height: 1.9; margin-top: 24px; font-style: italic; }
+
+  /* ── RUNNING HEADER ── */
+  .running-header { font-family: var(--font-ui); font-size: 11px; color: rgba(0,0,0,0.3); letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid var(--manning-border); padding: 20px 60px 14px; display: flex; justify-content: space-between; position: sticky; top: 0; background: rgba(255,255,255,0.97); backdrop-filter: blur(4px); z-index: 10; }
+
+  /* ── LAYOUT ── */
+  .book-body { max-width: 860px; margin: 0 auto; padding: 0 60px; }
+
+  /* ── CHAPTER ── */
+  .chapter { padding: 60px 0 80px; border-bottom: 2px solid var(--manning-border); margin-bottom: 60px; }
+  .chapter-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--manning-border); }
+  .chapter-number { font-family: var(--font-ui); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--manning-red); margin-bottom: 10px; }
+  .chapter-title { font-family: var(--font-body); font-size: 32px; font-weight: 700; line-height: 1.2; color: var(--manning-dark); letter-spacing: -0.5px; margin-bottom: 16px; }
+  .chapter-intro { font-family: var(--font-ui); font-size: 14px; color: var(--manning-gray); line-height: 1.75; border-left: 3px solid var(--manning-red); padding-left: 20px; font-style: italic; }
+
+  /* ── HEADINGS ── */
+  .section-title { font-family: var(--font-body); font-size: 20px; font-weight: 700; color: var(--manning-dark); margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--manning-border); }
+  .subsection-title { font-family: var(--font-ui); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--manning-gray); margin: 32px 0 12px; }
+  p { margin-bottom: 16px; font-size: 15px; color: #222; }
+
+  /* ── CALLOUTS ── */
+  .callout { border-left: 4px solid; border-radius: 0 4px 4px 0; padding: 16px 20px; margin: 28px 0; }
+  .callout-label { font-family: var(--font-ui); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .callout p { font-size: 13.5px; margin: 0; line-height: 1.7; }
+  .callout.note    { background: #fef9e7; border-color: #f39c12; }
+  .callout.note    .callout-label { color: #b7770d; }
+  .callout.tip     { background: #eafaf1; border-color: #27ae60; }
+  .callout.tip     .callout-label { color: #1e8449; }
+  .callout.warning { background: #fdecea; border-color: #c0392b; }
+  .callout.warning .callout-label { color: var(--manning-red); }
+  .callout.important { background: #eaf4fb; border-color: #2980b9; }
+  .callout.important .callout-label { color: #1a5276; }
+
+  /* ── STEPS ── */
+  .steps { list-style: none; counter-reset: step-counter; margin: 20px 0 28px; }
+  .steps li { counter-increment: step-counter; display: flex; gap: 16px; margin-bottom: 14px; align-items: flex-start; font-size: 14.5px; line-height: 1.75; }
+  .steps li::before { content: counter(step-counter); background: var(--manning-dark); color: #fff; font-family: var(--font-ui); font-size: 11px; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 3px; }
+
+  /* ── BULLETS ── */
+  ul.bullet { list-style: none; margin: 16px 0 24px 4px; }
+  ul.bullet li { position: relative; padding-left: 20px; margin-bottom: 10px; font-size: 14.5px; line-height: 1.75; }
+  ul.bullet li::before { content: "▸"; position: absolute; left: 0; color: var(--manning-red); font-size: 12px; top: 3px; }
+
+  /* ── TABLE ── */
+  .manning-table { width: 100%; border-collapse: collapse; margin: 24px 0 32px; font-family: var(--font-ui); font-size: 13px; }
+  .manning-table caption { font-family: var(--font-ui); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--manning-gray); text-align: left; margin-bottom: 8px; padding-bottom: 6px; }
+  .manning-table th { background: var(--manning-dark); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; }
+  .manning-table td { padding: 9px 14px; border-bottom: 1px solid var(--manning-border); vertical-align: top; line-height: 1.6; }
+  .manning-table tr:nth-child(even) td { background: var(--manning-light-gray); }
+
+  /* ── CODE ── */
+  code { font-family: var(--font-mono); font-size: 12.5px; background: #f0ede6; padding: 1px 5px; border-radius: 3px; color: #b03060; }
+  .code-block { background: #1e1e2e; border-radius: 6px; margin: 20px 0 28px; overflow: hidden; }
+  .code-block-header { background: #13131f; padding: 8px 16px; font-family: var(--font-ui); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 8px; }
+  .code-block-header::before { content: "⬤ ⬤ ⬤"; color: rgba(255,255,255,0.15); font-size: 8px; letter-spacing: 3px; }
+  .code-block pre { padding: 18px 20px; margin: 0; overflow-x: auto; }
+  .code-block code { background: transparent; color: #a6e3a1; font-size: 13px; padding: 0; line-height: 1.7; }
+
+  /* ── STATUS BOX ── */
+  .status-box { background: var(--manning-dark); color: #fff; border-radius: 6px; padding: 20px 24px; margin: 36px 0; }
+  .status-box h4 { font-family: var(--font-ui); font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+  .status-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-family: var(--font-ui); font-size: 13px; color: rgba(255,255,255,0.85); }
+  .status-item .badge { background: #27ae60; color: #fff; font-size: 9px; font-weight: 700; letter-spacing: 1px; padding: 2px 7px; border-radius: 10px; text-transform: uppercase; }
+
+  /* ── LABELS ── */
+  .label-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 12px; font-family: var(--font-ui); font-size: 12px; font-weight: 600; color: #fff; margin: 3px; }
+  .label-badge.red    { background: #d73a4a; }
+  .label-badge.orange { background: #e67e22; }
+  .label-badge.green  { background: #0e8a16; }
+  .label-badge.blue   { background: #2980b9; }
+
+  /* ── CHAPTER SUMMARY ── */
+  .chapter-summary { background: var(--manning-light-gray); border: 1px solid var(--manning-border); border-top: 3px solid var(--manning-dark); border-radius: 0 0 4px 4px; padding: 24px 28px; margin-top: 48px; }
+  .chapter-summary h4 { font-family: var(--font-ui); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--manning-red); margin-bottom: 16px; }
+  .chapter-summary p { font-family: var(--font-ui); font-size: 13.5px; color: var(--manning-gray); margin: 0; font-style: italic; }
+  .next-chapter { display: flex; align-items: center; gap: 12px; margin-top: 16px; font-family: var(--font-ui); font-size: 12px; color: var(--manning-dark); }
+  .next-chapter::before { content: "→"; font-size: 18px; color: var(--manning-red); }
+
+  @media (max-width: 700px) {
+    .book-body { padding: 0 20px; }
+    .front-matter { padding: 40px 20px; }
+    .cover-bottom, .cover-animal-box { padding-left: 30px; padding-right: 30px; }
+    .cover-title { font-size: 26px; }
+    .running-header { padding: 12px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-stripe"></div>
+  <div class="cover-animal-box">
+    <div class="cover-animal-inner">
+      <div class="cover-animal-label">About this guide</div>
+      <div class="cover-animal-svg">🦉</div>
+      <div class="cover-edition">Internal Technical Documentation · v1.0</div>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-separator"></div>
+    <div class="cover-title">Algorithme de Lancement</div>
+    <div class="cover-subtitle">Guide complet pour la mise en place d'un système<br>d'archivage universitaire sur GitHub — Phases 1 à 4</div>
+    <div class="cover-meta">
+      <div class="cover-authors">
+        <strong>Club IT — Coordinateur</strong>
+        À l'attention du coordinateur de filière
+      </div>
+      <div class="cover-publisher">Club IT<span>Documentation interne</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FRONT MATTER -->
+<div class="front-matter">
+  <h2>Table des matières</h2>
+  <ul class="brief-toc">
+    <li>L'Identité — Création de l'organisation GitHub<span class="toc-dots"></span><span class="toc-page">Phase 1</span></li>
+    <li>La Gouvernance — Équipes, permissions et labels<span class="toc-dots"></span><span class="toc-page">Phase 2</span></li>
+    <li>Le Protocole de Dépôt — Formulaires et contribution<span class="toc-dots"></span><span class="toc-page">Phase 3</span></li>
+    <li>Validation et Archivage — Du dépôt au dossier final<span class="toc-dots"></span><span class="toc-page">Phase 4</span></li>
+  </ul>
+  <p class="preface-text">Ce guide est conçu pour être suivi phase par phase, dans l'ordre. Chaque phase produit un résultat concret et opérationnel. Aucune phase ne dépend d'un outil payant — l'intégralité du système repose sur les plans gratuits de GitHub.</p>
+</div>
+
+<!-- RUNNING HEADER -->
+<div class="running-header">
+  <span>Algorithme de Lancement — Club IT</span>
+  <span>Guide GitHub · v1.0</span>
+</div>
+
+<div class="book-body">
+
+<!-- PHASE 1 -->
+<div class="chapter">
+  <div class="chapter-header">
+    <div class="chapter-number">Phase 1</div>
+    <h1 class="chapter-title">L'Identité</h1>
+    <p class="chapter-intro">Cette phase crée le "cerveau" de votre projet : l'Organisation GitHub, avec une structure de fichiers optimisée pour la recherche par matière. À la fin de cette phase, vous disposerez d'un espace collectif sécurisé, prêt à accueillir les archives de la filière.</p>
+  </div>
+
+  <h2 class="section-title">Étape 0 — Pré-requis</h2>
+  <p>Avant de commencer, assurez-vous de disposer des éléments suivants :</p>
+  <ul class="bullet">
+    <li>Un compte GitHub personnel (plan gratuit suffisant).</li>
+    <li>Le nom définitif du club, par exemple : <code>Club-Info-Univ-X</code>.</li>
+  </ul>
+  <div class="callout tip">
+    <div class="callout-label">💡 Tip</div>
+    <p>Choisissez un nom d'organisation <strong>court, sans accents et sans espaces</strong>. Ce nom apparaîtra dans toutes vos URLs GitHub et sera visible par tous les membres.</p>
+  </div>
+
+  <h2 class="section-title">Étape 1 — Création de l'Espace Collectif</h2>
+  <ol class="steps">
+    <li><strong>Connexion</strong> — Rendez-vous sur <code>github.com</code> et connectez-vous à votre compte personnel.</li>
+    <li><strong>Nouvelle Organisation</strong> — Cliquez sur le signe <code>+</code> en haut à droite, puis sélectionnez <em>"New organization"</em>.</li>
+    <li><strong>Choix du Plan</strong> — Sélectionnez le plan <em>"Free"</em>.</li>
+    <li><strong>Configuration</strong> — Renseignez les champs suivants :</li>
+  </ol>
+  <table class="manning-table">
+    <caption>Configuration de l'organisation GitHub</caption>
+    <thead><tr><th>Champ</th><th>Valeur attendue</th></tr></thead>
+    <tbody>
+      <tr><td>Organization account name</td><td><code>Info-Filiere-X</code></td></tr>
+      <tr><td>Contact email</td><td>Email du club ou du délégué</td></tr>
+      <tr><td>Belongs to</td><td><em>My personal account</em></td></tr>
+    </tbody>
+  </table>
+  <ol class="steps" style="counter-reset: step-counter 4;">
+    <li><strong>Validation</strong> — Cliquez sur <em>"Next"</em>, puis <em>"Finish setup"</em>.</li>
+  </ol>
+
+  <h2 class="section-title">Étape 2 — Création du Dépôt "Coffre-Fort"</h2>
+  <ol class="steps">
+    <li>Depuis la page d'accueil de votre organisation, cliquez sur l'onglet <em>"Repositories"</em>, puis sur le bouton vert <em>"New repository"</em>.</li>
+    <li>Renseignez les paramètres du dépôt :</li>
+  </ol>
+  <table class="manning-table">
+    <caption>Paramètres du dépôt principal</caption>
+    <thead><tr><th>Paramètre</th><th>Valeur</th></tr></thead>
+    <tbody>
+      <tr><td>Repository name</td><td><code>archives-sujets</code></td></tr>
+      <tr><td>Visibility</td><td><strong>Private</strong></td></tr>
+      <tr><td>Initialize</td><td>✅ Add a README file</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warning">
+    <div class="callout-label">⚠️ Warning</div>
+    <p>Ne passez jamais ce dépôt en <strong>Public</strong>. Les sujets d'examens sont des ressources sensibles, réservées aux membres de la filière.</p>
+  </div>
+  <ol class="steps" style="counter-reset: step-counter 2;">
+    <li>Cliquez sur le bouton vert <em>"Create repository"</em>.</li>
+  </ol>
+
+  <h2 class="section-title">Étape 3 — Arborescence Intuitive (Le Rangement)</h2>
+  <p>La logique de rangement adoptée est : <strong>Matière → Session → Année</strong>. Voici comment créer la structure vide pour l'Algorithmique :</p>
+  <ol class="steps">
+    <li>Cliquez sur <em>"Add file"</em> > <em>"Create new file"</em>.</li>
+    <li>Dans le champ nom du fichier, tapez le chemin suivant (les <code>/</code> créent automatiquement les dossiers) :</li>
+  </ol>
+  <div class="code-block">
+    <div class="code-block-header">Chemin à saisir dans GitHub</div>
+    <pre><code>Matieres/Algorithmique/Session-Normale/2025-2026/.gitkeep</code></pre>
+  </div>
+  <div class="callout note">
+    <div class="callout-label">📝 Note</div>
+    <p>Le fichier <code>.gitkeep</code> est un fichier vide dont le seul rôle est de permettre à GitHub de sauvegarder un dossier vide. Il sera remplacé dès le premier vrai dépôt de PDF.</p>
+  </div>
+  <ol class="steps" style="counter-reset: step-counter 2;">
+    <li>Cliquez sur <em>"Commit changes"</em>.</li>
+  </ol>
+
+  <h3 class="subsection-title">Modèle de nomenclature cible</h3>
+  <div class="code-block">
+    <div class="code-block-header">Modèle universel</div>
+    <pre><code>Matieres/[NOM_MATIERE]/[SESSION]/[ANNEE]/[NOM_FICHIER].pdf
+
+# Exemple — Session Normale
+Matieres/Algorithmique/Session-Normale/2025-2026/Algo-SN-2025-2026.pdf
+
+# Exemple — Rattrapage
+Matieres/Maths/Rattrapage/2024-2025/Maths-RT-2024-2025.pdf</code></pre>
+  </div>
+  <ul class="bullet">
+    <li><code>Session-Normale</code> — abrégée <strong>SN</strong></li>
+    <li><code>Rattrapage</code> — abrégé <strong>RT</strong></li>
+  </ul>
+
+  <div class="status-box">
+    <h4>✅ État du système — Fin de Phase 1</h4>
+    <div class="status-item"><span class="badge">OK</span> Organisation créée</div>
+    <div class="status-item"><span class="badge">OK</span> Dépôt privé sécurisé</div>
+    <div class="status-item"><span class="badge">OK</span> Structure logique centrée sur l'étudiant (Matière d'abord)</div>
+  </div>
+
+  <div class="chapter-summary">
+    <h4>Résumé de phase</h4>
+    <p>Vous disposez désormais d'un espace collectif GitHub, d'un dépôt privé sécurisé et d'une arborescence prête à recevoir les fichiers.</p>
+    <div class="next-chapter">Phase suivante : La Gouvernance — configuration des équipes, permissions et labels visuels.</div>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="chapter">
+  <div class="chapter-header">
+    <div class="chapter-number">Phase 2</div>
+    <h1 class="chapter-title">La Gouvernance</h1>
+    <p class="chapter-intro">L'objectif de cette phase est de transformer un projet "solo" en un projet collectif sécurisé, avec des rôles clairement définis. Sur GitHub, les accès ne se gèrent pas individu par individu : on crée des <em>Teams</em> auxquelles on attribue des permissions globales.</p>
+  </div>
+
+  <h2 class="section-title">Étape 1 — Création de l'Équipe de Direction (The Team)</h2>
+  <ol class="steps">
+    <li>Allez sur la page d'accueil de votre Organisation (cliquez sur le logo du club).</li>
+    <li>Cliquez sur l'onglet <em>"Teams"</em>.</li>
+    <li>Cliquez sur le bouton vert <em>"New team"</em> et renseignez les champs suivants :</li>
+  </ol>
+  <table class="manning-table">
+    <caption>Configuration de l'équipe de direction</caption>
+    <thead><tr><th>Champ</th><th>Valeur</th></tr></thead>
+    <tbody>
+      <tr><td>Team name</td><td><code>Bureau-du-Club</code></td></tr>
+      <tr><td>Description</td><td><em>Membres responsables de la validation des sujets</em></td></tr>
+      <tr><td>Visibility</td><td><strong>Visible</strong></td></tr>
+    </tbody>
+  </table>
+  <ol class="steps" style="counter-reset: step-counter 3;">
+    <li>Cliquez sur <em>"Create team"</em>.</li>
+  </ol>
+
+  <h2 class="section-title">Étape 2 — Attribution des Permissions au "Coffre-Fort"</h2>
+  <ol class="steps">
+    <li>Dans votre équipe <code>Bureau-du-Club</code>, cliquez sur l'onglet <em>"Repositories"</em>.</li>
+    <li>Cliquez sur <em>"Add repository"</em> et sélectionnez <code>archives-sujets</code>.</li>
+    <li>Définissez le niveau de permission sur <strong>"Maintain"</strong>.</li>
+  </ol>
+  <div class="callout important">
+    <div class="callout-label">ℹ️ Pourquoi "Maintain" et pas "Admin" ?</div>
+    <p>Le niveau <em>Maintain</em> permet aux membres du Bureau d'ajouter, organiser et gérer le contenu du dépôt. Il leur interdit cependant de <strong>supprimer le dépôt</strong> ou de modifier les réglages critiques. Seul le compte <em>Owner</em> (le coordinateur) conserve ces droits.</p>
+  </div>
+  <ol class="steps" style="counter-reset: step-counter 3;">
+    <li>Cliquez sur <em>"Save"</em>.</li>
+  </ol>
+
+  <h2 class="section-title">Étape 3 — Invitation des Membres</h2>
+  <ol class="steps">
+    <li>Dans l'onglet <em>"Members"</em> de l'équipe, cliquez sur <em>"Add a member"</em>.</li>
+    <li>Saisissez le nom d'utilisateur GitHub ou l'adresse email de chaque collègue.</li>
+    <li>Envoyez l'invitation — le membre recevra un email de confirmation.</li>
+  </ol>
+
+  <h2 class="section-title">Étape 4 — Configuration des Labels (La Perception Visuelle)</h2>
+  <p>Les <em>Labels</em> permettent d'identifier l'état d'un sujet sans ouvrir son dossier. Ils s'appliquent aux <em>Issues</em> (demandes de dépôt).</p>
+  <ol class="steps">
+    <li>Allez dans le dépôt <code>archives-sujets</code> > onglet <em>"Issues"</em> > bouton <em>"Labels"</em>.</li>
+    <li>Créez les trois labels standards suivants :</li>
+  </ol>
+  <table class="manning-table">
+    <caption>Labels de signalétique visuelle</caption>
+    <thead><tr><th>Nom du Label</th><th>Aperçu</th><th>Code Hex</th></tr></thead>
+    <tbody>
+      <tr><td><code>Besoin-de-Correction</code></td><td><span class="label-badge red">Besoin-de-Correction</span></td><td><code>#d73a4a</code></td></tr>
+      <tr><td><code>Sujet-Incomplet</code></td><td><span class="label-badge orange">Sujet-Incomplet</span></td><td><code>#e99695</code></td></tr>
+      <tr><td><code>Correction-Disponible</code></td><td><span class="label-badge green">Correction-Disponible</span></td><td><code>#0e8a16</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="status-box">
+    <h4>✅ État du système — Fin de Phase 2</h4>
+    <div class="status-item"><span class="badge">OK</span> Équipe créée (structure humaine définie)</div>
+    <div class="status-item"><span class="badge">OK</span> Permissions réglées sur "Maintain" (sécurité préservée)</div>
+    <div class="status-item"><span class="badge">OK</span> Labels configurés (signalétique visuelle opérationnelle)</div>
+  </div>
+
+  <div class="chapter-summary">
+    <h4>Résumé de phase</h4>
+    <p>Le projet dispose désormais d'une structure humaine avec des rôles clairs et une signalétique visuelle pour le suivi des contributions.</p>
+    <div class="next-chapter">Phase suivante : Le Protocole de Dépôt — formulaire de contribution et mise à jour du README.</div>
+  </div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="chapter">
+  <div class="chapter-header">
+    <div class="chapter-number">Phase 3</div>
+    <h1 class="chapter-title">Le Protocole de Dépôt</h1>
+    <p class="chapter-intro">Cette phase installe le "formulaire de réception" qui garantit que toutes les contributions arrivent dans un format uniforme dès le premier jour. Un étudiant qui ne sait pas comment contribuer ne contribuera pas — ce formulaire élimine ce frein.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="callout-label">📝 Note</div>
+    <p>Sur GitHub, les <em>Issues</em> ne servent pas uniquement à signaler des bugs. Dans notre contexte, elles constituent le <strong>canal officiel de dépôt de sujets</strong> par les étudiants.</p>
+  </div>
+
+  <h2 class="section-title">Étape 1 — Activer les Modèles de Demandes (Issue Templates)</h2>
+  <ol class="steps">
+    <li>Allez dans votre dépôt <code>archives-sujets</code> > onglet <em>"Settings"</em>.</li>
+    <li>Dans la section <em>"Features"</em>, repérez <em>"Issues"</em> et cliquez sur <em>"Set up templates"</em>.</li>
+    <li>Cliquez sur <em>"Add template"</em> > <em>"Custom template"</em>.</li>
+    <li>Cliquez sur <em>"Preview and edit"</em>.</li>
+  </ol>
+
+  <h2 class="section-title">Étape 2 — Configurer le Formulaire de Dépôt</h2>
+  <table class="manning-table">
+    <caption>Métadonnées du template</caption>
+    <thead><tr><th>Champ</th><th>Valeur</th></tr></thead>
+    <tbody>
+      <tr><td>Template name</td><td>📦 Dépôt de Nouveau Sujet</td></tr>
+      <tr><td>About</td><td><em>Utilisez ce formulaire pour nous envoyer un scan d'examen.</em></td></tr>
+    </tbody>
+  </table>
+  <p>Remplacez le contenu du champ <strong>Template content</strong> par ce texte :</p>
+  <div class="code-block">
+    <div class="code-block-header">Template content — Markdown</div>
+    <pre><code>### 📚 Informations sur le Sujet
+- **Matière :** [Ex: Algorithmique]
+- **Année :** [Ex: 2024-2025]
+- **Session :** [Normale / Rattrapage]
+- **Niveau :** [L1 / L2 / L3 / M1 / M2]
+
+### 📎 Fichier
+- [ ] J'ai glissé-déposé le PDF ou l'image ci-dessous.
+- [ ] Le scan est lisible et complet.
+
+### 📝 Remarques (Optionnel)
+(Ex: Manque la question 3, ou sujet difficile cette année.)</code></pre>
+  </div>
+
+  <h2 class="section-title">Étape 3 — Automatisation des Labels</h2>
+  <ol class="steps">
+    <li>Dans l'éditeur de template (colonne de droite), cliquez sur <em>"Labels"</em>.</li>
+    <li>Sélectionnez <span class="label-badge red" style="font-size:11px;padding:2px 8px;">Besoin-de-Correction</span>, ou créez <span class="label-badge blue" style="font-size:11px;padding:2px 8px;">Nouveau-Dépôt</span>.</li>
+    <li>Cliquez sur <em>"Propose changes"</em>, puis <em>"Commit changes"</em>.</li>
+  </ol>
+
+  <h2 class="section-title">Étape 4 — Le Guide de Survie (README)</h2>
+  <div class="code-block">
+    <div class="code-block-header">README.md — Section contribution</div>
+    <pre><code>## 🚀 Comment contribuer ?
+
+C'est très simple :
+
+1. Cliquez sur l'onglet **[Issues]** en haut de cette page.
+2. Cliquez sur le bouton vert **[New Issue]**.
+3. Choisissez **[Dépôt de Nouveau Sujet]** et remplissez le formulaire !</code></pre>
+  </div>
+
+  <div class="status-box">
+    <h4>✅ État du système — Fin de Phase 3</h4>
+    <div class="status-item"><span class="badge">OK</span> Formulaire intelligent créé (standardisation des contributions)</div>
+    <div class="status-item"><span class="badge">OK</span> Labels automatiques liés aux dépôts (tri rapide pour le Bureau)</div>
+    <div class="status-item"><span class="badge">OK</span> README pédagogique mis à jour (expérience utilisateur soignée)</div>
+  </div>
+
+  <div class="chapter-summary">
+    <h4>Résumé de phase</h4>
+    <p>N'importe quel étudiant peut désormais soumettre un sujet en trois clics, avec un formulaire structuré.</p>
+    <div class="next-chapter">Phase suivante : Validation et Archivage — du dépôt étudiant au dossier définitif.</div>
+  </div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="chapter">
+  <div class="chapter-header">
+    <div class="chapter-number">Phase 4</div>
+    <h1 class="chapter-title">Validation et Archivage</h1>
+    <p class="chapter-intro">L'objectif de cette phase est de traiter les dépôts des étudiants pour les intégrer officiellement dans l'arborescence de la filière. C'est le cœur du workflow quotidien du Bureau du Club.</p>
+  </div>
+
+  <h2 class="section-title">Étape 1 — Réception et Tri (Le rôle du Modérateur)</h2>
+  <ol class="steps">
+    <li>Allez dans l'onglet <em>"Issues"</em> de votre dépôt.</li>
+    <li>Cliquez sur la nouvelle demande reçue.</li>
+    <li><strong>Contrôle qualité</strong> — Vérifiez : lisibilité du scan, pages manquantes, métadonnées correctes.</li>
+    <li>Si le fichier est conforme, ajoutez le commentaire :</li>
+  </ol>
+  <div class="callout tip">
+    <div class="callout-label">💬 Commentaire de validation type</div>
+    <p><em>"Merci ! Sujet validé. En cours d'archivage par le Bureau."</em></p>
+  </div>
+
+  <h2 class="section-title">Étape 2 — L'Archivage Physique (Le Transfert)</h2>
+  <ol class="steps">
+    <li>Allez dans l'onglet <em>"Code"</em> du dépôt.</li>
+    <li>Naviguez jusqu'à la destination finale :</li>
+  </ol>
+  <div class="code-block">
+    <div class="code-block-header">Chemin de destination</div>
+    <pre><code>Matieres/Algorithmique/Session-Normale/2025-2026/</code></pre>
+  </div>
+  <ol class="steps" style="counter-reset: step-counter 2;">
+    <li>Cliquez sur <em>"Add file"</em> > <em>"Upload files"</em>.</li>
+    <li>Glissez-déposez le PDF transmis par l'étudiant.</li>
+    <li><strong>Nomenclature stricte</strong> — Vérifiez le nom : <code>Algo-SN-2025.pdf</code></li>
+    <li>Cliquez sur <em>"Commit changes"</em>.</li>
+  </ol>
+  <div class="callout warning">
+    <div class="callout-label">⚠️ Warning</div>
+    <p>Ne jamais renommer un fichier après archivage si un lien a déjà été partagé dans le README. Tout renommage brise les liens existants pour tous les étudiants.</p>
+  </div>
+
+  <h2 class="section-title">Étape 3 — Fermeture de la Demande</h2>
+  <ol class="steps">
+    <li>Retournez dans <em>"Issues"</em> et ouvrez la demande correspondante.</li>
+    <li>Mettez à jour le <em>Label</em> : <span class="label-badge green" style="font-size:11px;padding:2px 8px;">Correction-Disponible</span> si la correction est jointe, sinon laisser le label actuel.</li>
+    <li>Cliquez sur <em>"Close with comment"</em> et écrivez :</li>
+  </ol>
+  <div class="callout tip">
+    <div class="callout-label">💬 Commentaire de clôture type</div>
+    <p><em>"Fichier ajouté avec succès à l'archive ! Merci pour ta contribution. 🎉"</em></p>
+  </div>
+
+  <h2 class="section-title">Étape 4 — Mise à Jour de l'Index (La Visibilité)</h2>
+  <div class="code-block">
+    <div class="code-block-header">README.md — Tableau d'index</div>
+    <pre><code>| Matière       | Session         | Année     | Fichier                   |
+|---------------|-----------------|-----------|---------------------------|
+| Algorithmique | Session Normale | 2025-2026 | ✅ [Télécharger](#)       |</code></pre>
+  </div>
+
+  <div class="status-box">
+    <h4>✅ État du système — Fin de Phase 4</h4>
+    <div class="status-item"><span class="badge">OK</span> Flux de travail complet : de l'étudiant au dossier final</div>
+    <div class="status-item"><span class="badge">OK</span> Contrôle qualité manuel assuré par le Bureau</div>
+    <div class="status-item"><span class="badge">OK</span> Traçabilité complète (historique des Issues : qui, quoi, quand)</div>
+  </div>
+
+  <div class="chapter-summary">
+    <h4>Résumé de phase</h4>
+    <p>Le système est entièrement opérationnel. Chaque contribution est contrôlée, archivée et traçable. Le README sert d'index consultable par tous.</p>
+    <div class="next-chapter">Phase suivante (à venir) : Communication et Croissance — lien sécurisé et annonce de lancement sur WhatsApp / Discord.</div>
+  </div>
+</div>
+
+<!-- COLOPHON -->
+<div style="text-align:center; padding: 60px 0 80px; border-top: 1px solid var(--manning-border); margin-top: 40px;">
+  <div style="font-family: var(--font-ui); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #bbb; margin-bottom: 8px;">Fin du document · Phases 1 à 4</div>
+  <div style="font-family: var(--font-ui); font-size: 12px; color: #ccc;">Club IT — Documentation interne · v1.0</div>
+</div>
+
+</div>
+</body>
+</html>
